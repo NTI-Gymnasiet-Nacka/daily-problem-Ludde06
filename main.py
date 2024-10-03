@@ -117,8 +117,7 @@ def show_list(password):
         for i, sak in enumerate(items[1:], 1):
             print(f"{i}. {sak}")
     else:
-        print()
-        print("Listan är tom")
+        print("\nListan är tom")
 
 def add_item(password):
     ny_sak = input("Vad vill du lägga till - (A)vbryt: ")
@@ -148,8 +147,7 @@ def remove_item(password):
                     print(f"'{borttagen_sak}' har tagits bort från listan.")
                     return True
                 else:
-                    print()
-                    print("Ogiltigt nummer.")
+                    print("\nOgiltigt nummer.")
                     print()
         except ValueError:
             print("Ange ett giltigt nummer.")
@@ -173,8 +171,7 @@ def edit(password):
                     else:
                         items[num] = ny_text
                         save_list(items, password)
-                        print()
-                        print(f"Objektet har uppdaterats till: '{ny_text}'")
+                        print(f"\nObjektet har uppdaterats till: '{ny_text}'")
                         return True
                 else:
                     print("Ogiltigt nummer.\n")
@@ -182,7 +179,7 @@ def edit(password):
             print("Ange ett giltigt nummer.")
 
 
-# Fixa så man kan sortera utefrån prioritet, Email system (deadline), Kunna markera fördiga uppgifter, Kanse kunna grupptera uppgifter
+# Fixa så man kan sortera utefrån prioritet, Email system (deadline) Gör typ en separat fil, Kunna markera fördiga uppgifter, Kanse kunna grupptera uppgifter
 
 def main():
     attempts = 3  
@@ -215,8 +212,7 @@ def main():
         print("╔" + "═" * (size - 2) + "╗")
         print(f'║  Användaren: {user}  ║')
         print("╚" + "═" * (size - 2) + "╝")
-        print()
-        print("╔══════════════════════╗")
+        print("\n╔══════════════════════╗")
         print("║    Att Göra Lista    ║")
         print("╠══════════════════════╣")
         print("║    1. Vissa lista    ║")
@@ -232,8 +228,7 @@ def main():
         if meny == "1":
             clear_terminal()
             show_list(password)
-            print()
-            input("Gå tillbaka? (Tryck på Enter)")
+            input("\nGå tillbaka? (Tryck på Enter)")
         elif meny == "2":
             clear_terminal()
             tillagd = add_item(password)
