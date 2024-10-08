@@ -141,7 +141,7 @@ def remove_item(password):
                 return False
             else:
                 num += 1
-                if 1 <= num <= len(items):
+                if 1 <= num <= (len(items)-1):
                     borttagen_sak = items.pop(num-1)
                     save_list(items, password)
                     print(f"'{borttagen_sak}' har tagits bort från listan.")
@@ -162,7 +162,7 @@ def edit(password):
             if num == 0:
                 return False
             else:
-                if 1 <= num <= len(items):
+                if 1 <= num <= (len(items)-1):
                     clear_terminal()
                     print(f"Redigera: '{items[num]}'")
                     ny_text = input("Vad vill du ändra det till - (A)vbryt: ")
@@ -178,8 +178,126 @@ def edit(password):
         except ValueError:
             print("Ange ett giltigt nummer.")
 
+def finished(password):
+    items = read_list(password)
+    show_list(password)
+    print()
+    while True:
+        try:
+            num = int(input("Ange numret på saken du vill marekar som klar - (0) Avbryt: "))
+            if num == 0:
+                return False
+            else:
+                if 1 <= num <= (len(items)-1):
+                    clear_terminal()
+                    if items[num].startswith("(") and items[num].endswith(")"):
+                        items[num] = items[num][1:-1]
+                        print(f"\nObjektet är nu avmarkerat som klart: '{items[num]}'")
+                    else:
+                        items[num] = "(" + items[num] + ")"
+                        print(f"\nObjektet är nu markerat som klart: '{items[num]}'")
+                    save_list(items, password)
+                    return True
+                else:
+                    print("Ogiltigt nummer.\n")
+        except ValueError:
+            print("Ange ett giltigt nummer.")
 
-# Fixa så man kan sortera utefrån prioritet, Email system (deadline) Gör typ en separat fil, Kunna markera fördiga uppgifter, Kanse kunna grupptera uppgifter
+def prio(password):
+    items = read_list(password)
+    while True:
+        try:
+            clear_terminal()
+            show_list(password)
+            print()
+            num = int(input("Ange numret på saken du vill prioritera - (0) Avbryt: "))
+            if num == 0:
+                return False
+            elif 1 <= num <= (len(items)-1):
+                clear_terminal()
+                current_item = items[num]
+                current_priority = ""
+                
+                if '[' in current_item and ']' in current_item:
+                    current_priority = current_item[current_item.index('['):]
+                    current_item = current_item[:current_item.index('[')].strip()
+                
+                print(f"Prioritera: '{current_item}'")
+                prio_val = input("Ange prioritet (+, ++, +++) - (tryck Enter för att ta bort prioritet) - (A)vbryt: ")
+                
+                if prio_val.lower() == "a":
+                    return False
+                elif prio_val == "":
+                    items[num] = current_item
+                    save_list(items, password)
+                    print(f"\nPrioriteten är borttagen: '{items[num]}'")
+                    return True
+                elif prio_val in ['+', '++', '+++']:
+                    if current_priority != f"[{prio_val}]":
+                        items[num] = f"{current_item} [{prio_val}]"
+                        save_list(items, password)
+                        print(f"\nPrioriteten är uppdaterad: '{items[num]}'")
+                    else:
+                        print(f"\nIngen ändring gjordes, prioriteten är redan '{prio_val}'")
+                    return True
+                else:
+                    print("Ogiltig prioritet. Välj +, ++ eller +++.\n")
+                    time.sleep(1)
+            else:
+                print("Ogiltigt nummer.\n")
+        except ValueError:
+            print("Ange ett giltigt nummer.")
+
+def deadline(password):
+    items = read_list(password)
+    while True:
+        try:
+            clear_terminal()
+            show_list(password)
+            print()
+            num = int(input("Ange numret på saken du vill lägga till eller ta bort en deadline på - (0) Avbryt: "))
+            if num == 0:
+                return False
+            elif 1 <= num <= (len(items)-1):
+                clear_terminal()
+                current_item = items[num]
+                print(f"Nuvarande sak: '{current_item}'")
+                
+                deadline_input = input("Ange deadline (format: dd/mm hh:mm) eller tryck Enter för att ta bort deadline - (A)vbryt: ")
+                
+                if deadline_input.lower() == "a":
+                    return False
+
+                if deadline_input == "":
+                    if "{" in current_item and "}" in current_item:
+                        current_item = current_item.split("{")[0].strip() 
+                        items[num] = current_item
+                        save_list(items, password)
+                        print(f"\nDeadlinen har tagits bort från '{current_item}'")
+                    else:
+                        print("\nIngen deadline att ta bort.")
+                    return True
+                
+                try:
+                    time.strptime(deadline_input, "%d/%m %H:%M")
+                    
+                    if "{" in current_item and "}" in current_item:
+                        current_item = current_item.split("{")[0].strip() 
+                
+                    items[num] = f"{current_item} {{{deadline_input}}}"
+                    save_list(items, password)
+                    print(f"\nDeadlinen '{deadline_input}' har lagts till på '{current_item}'")
+                    return True
+                except ValueError:
+                    print("Felaktigt format. Ange datum och tid som dd/mm hh:mm.\n")
+                    time.sleep(2)
+            else:
+                print("Ogiltigt nummer.\n")
+        except ValueError:
+            print("Ange ett giltigt nummer.")
+
+
+# Email system (deadline) Gör typ en separat fil, Göra så att när dom vissas hamnar dom i prioordning
 
 def main():
     attempts = 3  
@@ -219,12 +337,15 @@ def main():
         print("║     2. Lägg till     ║")
         print("║      3. Ta bort      ║")
         print("║     4. Redigera      ║")
+        print("║ 5. Markera (Färdigt) ║")
+        print("║   6. Prio ordning    ║")
+        print("║     7. Deadline      ║")
         print("║                      ║")
-        print("║      5. Avsluta      ║")
+        print("║      (A)vsluta       ║")
         print("╚══════════════════════╝")
         print()
         print()
-        meny = input("Välj mellan (1/2/3/4): ")
+        meny = input("Välj mellan (1/2/3/4/5/6/7) eller A: ")
         if meny == "1":
             clear_terminal()
             show_list(password)
@@ -249,17 +370,43 @@ def main():
                 input("Gå tillbaka? (Tryck på Enter)")
         elif meny == "5":
             clear_terminal()
+            bortagen = finished(password)
+            print()
+            if bortagen:
+                input("Gå tillbaka? (Tryck på Enter)")
+        elif meny == "6":
+            clear_terminal()
+            bortagen = prio(password)
+            print()
+            if bortagen:
+                input("Gå tillbaka? (Tryck på Enter)")
+        elif meny == "7":
+            clear_terminal()
+            bortagen = deadline(password)
+            print()
+            if bortagen:
+                input("Gå tillbaka? (Tryck på Enter)")
+        elif meny.lower() == "a":
+            clear_terminal()
             print("╔══════════════════════════════════════════╗")
             print("║ - Du kommer nu att stänga av programet - ║")
             print("╚══════════════════════════════════════════╝")
             hide_file(file_name) 
             time.sleep(2)
             sys.exit()
+        elif meny == "fabricreset":
+            clear_terminal()
+            print("╔══════════════════════╗")
+            print("║ - Datan är raderad - ║")
+            print("╚══════════════════════╝")
+            time.sleep(2)
+            os.remove(file_name)
+            sys.exit()  
         else:
             clear_terminal()
-            print("╔═══════════════════════════════════════╗")
-            print("║ Du måste välja ett av numrena 1/2/3/4 ║")
-            print("╚═══════════════════════════════════════╝")
+            print("╔══════════════════════════════════════╗")
+            print("║ Du måste välja 1/2/3/4/5/6/7 eller A ║")
+            print("╚══════════════════════════════════════╝")
             time.sleep(2)
 
 
